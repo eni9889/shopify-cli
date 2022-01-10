@@ -165,7 +165,7 @@ module Script
           created: "Created script",
           preparing_project: "Preparing project files",
           creating_other: "Creating configurations files for your script",
-          created_other: "Configuration files created"
+          created_other: "Configuration files created",
         },
 
         push: {
