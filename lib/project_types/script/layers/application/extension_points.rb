@@ -27,10 +27,12 @@ module Script
         end
 
         def self.languages(type:)
-          get(type: type).libraries.all.map do |library|
+          languages = get(type: type).libraries.all.map do |library|
             next nil if library.beta? && !ShopifyCLI::Feature.enabled?(:scripts_beta_languages)
             library.language
           end.compact
+          languages.push("other") if ShopifyCLI::Feature.enabled?(:scripts_beta_languages)
+          languages
         end
 
         def self.supported_language?(type:, language:)
