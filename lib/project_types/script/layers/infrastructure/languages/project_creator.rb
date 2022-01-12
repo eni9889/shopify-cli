@@ -47,6 +47,8 @@ module Script
             raise NotImplementedError
           end
 
+          # These message methods exist to allow the application layer to remain unaware of the specific 
+          # strings it needs to accurately reflect what a ProjectCreator is doing.
           def create_start_message
             ctx.message(
               "core.git.pulling_from_to",
