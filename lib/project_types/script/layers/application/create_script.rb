@@ -55,9 +55,9 @@ module Script
                 end
               end
 
-              # This isn't ideal, but works for now. 
+              # This isn't ideal, but works for now.
               # Ideally, CreateScript shouldn't need to know which ProjectCreators need dependencies installed.
-              # For that we'd want to have better composability, 
+              # For that we'd want to have better composability,
               # and omit the following steps when we have an "other" language script.
               unless language == "other"
                 task_runner = Infrastructure::Languages::TaskRunner.for(ctx, language, script_name)
