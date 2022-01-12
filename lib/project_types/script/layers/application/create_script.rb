@@ -47,33 +47,49 @@ module Script
           private
 
           def install_dependencies(ctx, language, script_name, project_creator)
-            if language == "other"
-              # initialize a basic directory for other languages
-              CLI::UI::Frame.open(ctx.message("script.create.preparing_project")) do
-                UI::StrictSpinner.spin(ctx.message("script.create.creating_other")) do |spinner|
+            # NEW CODE HERE
+            CLI::UI::Frame.open(ctx.message("script.create.creating")) do
+              CLI::UI::Frame.open(project_creator.create_start_message) do
+                UI::StrictSpinner.spin(project_creator.create_inprogress_message) do |spinner|
                   project_creator.setup_dependencies
-                  spinner.update_title(ctx.message("script.create.created_other"))
+                  spinner.update_title(project_creator.create_finished_message)
                 end
               end
-            else
-              # perform sparse checkout if this is a 1st party language library
-              task_runner = Infrastructure::Languages::TaskRunner.for(ctx, language, script_name)
-              CLI::UI::Frame.open(ctx.message(
-                "core.git.pulling_from_to",
-                project_creator.sparse_checkout_repo,
-                script_name,
-              )) do
-                UI::StrictSpinner.spin(ctx.message(
-                  "core.git.pulling",
-                  project_creator.sparse_checkout_repo,
-                  script_name,
-                )) do |spinner|
-                  project_creator.setup_dependencies
-                  spinner.update_title(ctx.message("core.git.pulled", script_name))
-                end
+
+              unless language == "other"
+                task_runner = Infrastructure::Languages::TaskRunner.for(ctx, language, script_name)
+                ProjectDependencies.install(ctx: ctx, task_runner: task_runner)
               end
-              ProjectDependencies.install(ctx: ctx, task_runner: task_runner)
             end
+
+            # OLD CODE HERE
+            # if language == "other"
+            #   # initialize a basic directory for other languages
+            #   CLI::UI::Frame.open(ctx.message("script.create.preparing_project")) do
+            #     UI::StrictSpinner.spin(ctx.message("script.create.creating_other")) do |spinner|
+            #       project_creator.setup_dependencies
+            #       spinner.update_title(ctx.message("script.create.created_other"))
+            #     end
+            #   end
+            # else
+            #   # perform sparse checkout if this is a 1st party language library
+            #   task_runner = Infrastructure::Languages::TaskRunner.for(ctx, language, script_name)
+            #   CLI::UI::Frame.open(ctx.message(
+            #     "core.git.pulling_from_to",
+            #     project_creator.sparse_checkout_repo,
+            #     script_name,
+            #   )) do
+            #     UI::StrictSpinner.spin(ctx.message(
+            #       "core.git.pulling",
+            #       project_creator.sparse_checkout_repo,
+            #       script_name,
+            #     )) do |spinner|
+            #       project_creator.setup_dependencies
+            #       spinner.update_title(ctx.message("core.git.pulled", script_name))
+            #     end
+            #   end
+            #   ProjectDependencies.install(ctx: ctx, task_runner: task_runner)
+            # end
           end
 
           def in_new_directory_context(script_project_repo)

@@ -47,6 +47,26 @@ module Script
             raise NotImplementedError
           end
 
+          def create_start_message
+            ctx.message(
+              "core.git.pulling_from_to",
+              sparse_checkout_repo,
+              project_name
+            )
+          end
+
+          def create_inprogress_message
+            ctx.message(
+              "core.git.pulling",
+              sparse_checkout_repo,
+              project_name
+            )
+          end
+
+          def create_finished_message
+            ctx.message("core.git.pulled", project_name)
+          end
+
           # the sparse checkout process is common to all script types
           def setup_dependencies
             setup_sparse_checkout
