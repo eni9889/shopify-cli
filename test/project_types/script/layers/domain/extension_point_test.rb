@@ -28,6 +28,10 @@ describe Script::Layers::Domain::ExtensionPoint do
   end
 
   describe ".new" do
+    before do
+      ShopifyCLI::Feature.stubs(:enabled?).with(:scripts_beta_languages).returns(false)
+    end
+
     describe "when deprecation status is not specified" do
       subject { Script::Layers::Domain::ExtensionPoint.new(type, config) }
       it "should construct new, non-deprecated ExtensionPoint" do
@@ -82,7 +86,7 @@ describe Script::Layers::Domain::ExtensionPoint do
       end
     end
 
-    describe "when a libary is not implemented" do
+    describe "when a library is not implemented" do
       subject { Script::Layers::Domain::ExtensionPoint.new(type, config) }
 
       it "should not return that library" do
@@ -90,6 +94,32 @@ describe Script::Layers::Domain::ExtensionPoint do
 
         assert_equal 1, extension_point.libraries.all.count
         assert_nil extension_point.libraries.for("rust")
+      end
+    end
+
+    describe "when scripts_beta_languages flag is disabled" do
+      subject { Script::Layers::Domain::ExtensionPoint.new(type, config) }
+
+      before do
+        ShopifyCLI::Feature.stubs(:enabled?).with(:scripts_beta_languages).returns(false)
+      end
+
+      it "should not return other as a language" do
+        extension_point = subject
+        assert_nil extension_point.libraries.for("other")
+      end
+    end
+
+    describe "when scripts_beta_languages flag is enabled" do
+      subject { Script::Layers::Domain::ExtensionPoint.new(type, config) }
+
+      before do
+        ShopifyCLI::Feature.stubs(:enabled?).with(:scripts_beta_languages).returns(true)
+      end
+
+      it "should return other as a language" do
+        extension_point = subject
+        refute_nil extension_point.libraries.for("other")
       end
     end
   end
