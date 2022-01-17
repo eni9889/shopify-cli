@@ -12,7 +12,8 @@ describe Script::Layers::Application::BuildScript do
     let(:content) { "content" }
     let(:compiled_type) { "wasm" }
     let(:metadata) { Script::Layers::Domain::Metadata.new("1", "0", false) }
-    let(:task_runner) { stub(compiled_type: compiled_type, metadata: metadata) }
+    let(:metadata_file_location) { "metadata.json" }
+    let(:task_runner) { stub(compiled_type: compiled_type, metadata_file_location: metadata_file_location) }
     let(:script_project) { stub }
 
     let(:library_language) { "assemblyscript" }
@@ -45,6 +46,8 @@ describe Script::Layers::Application::BuildScript do
       script_project
         .stubs(:language)
         .returns(library_language)
+
+      Script::Layers::Infrastructure::MetadataRepository.any_instance.stubs(:get_metadata).returns(metadata)
     end
 
     subject do
