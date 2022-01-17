@@ -31,7 +31,13 @@ module Script
           end
         end
 
-        class MetadataNotFoundError < ScriptProjectError; end
+        class MetadataNotFoundError < ScriptProjectError
+          attr_reader :filename
+          def initialize(filename)
+            super()
+            @filename = filename
+          end
+        end
 
         class MetadataValidationError < ScriptProjectError; end
       end

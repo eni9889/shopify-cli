@@ -10,6 +10,7 @@ describe Script::Layers::Application::PushScript do
   let(:force) { true }
   let(:use_msgpack) { true }
   let(:extension_point_type) { "discount" }
+  let(:metadata_file_location) { "build/metadata.json" }
   let(:metadata) { Script::Layers::Domain::Metadata.new("1", "0", use_msgpack) }
   let(:library_version) { "1.0.0" }
   let(:library_language) { "assemblyscript" }
@@ -33,7 +34,9 @@ describe Script::Layers::Application::PushScript do
   let(:push_package_repository) { TestHelpers::FakePushPackageRepository.new }
   let(:extension_point_repository) { TestHelpers::FakeExtensionPointRepository.new }
   let(:script_project_repository) { TestHelpers::FakeScriptProjectRepository.new }
-  let(:task_runner) { stub(compiled_type: "wasm", metadata: metadata, library_version: library_version) }
+  let(:task_runner) do
+    stub(compiled_type: "wasm", metadata_file_location: metadata_file_location, library_version: library_version)
+  end
   let(:ep) { extension_point_repository.get_extension_point(extension_point_type) }
   let(:uuid) { "uuid" }
   let(:url) { "https://some-bucket" }
@@ -42,6 +45,7 @@ describe Script::Layers::Application::PushScript do
     Script::Layers::Infrastructure::PushPackageRepository.stubs(:new).returns(push_package_repository)
     Script::Layers::Infrastructure::ExtensionPointRepository.stubs(:new).returns(extension_point_repository)
     Script::Layers::Infrastructure::ScriptProjectRepository.stubs(:new).returns(script_project_repository)
+    Script::Layers::Infrastructure::MetadataRepository.any_instance.stubs(:get_metadata).returns(metadata)
     Script::Layers::Infrastructure::Languages::TaskRunner
       .stubs(:for)
       .with(@context, library_language, script_name)

@@ -25,7 +25,7 @@ module Script
 
         def get_push_package(script_project:, compiled_type:, metadata:, library:)
           build_file_path = file_path(script_project.id, compiled_type)
-          raise Domain::PushPackageNotFoundError unless ctx.file_exist?(build_file_path)
+          raise Domain::Errors::PushPackageNotFoundError unless ctx.file_exist?(build_file_path)
 
           script_content = ctx.binread(build_file_path)
           Domain::PushPackage.new(
