@@ -26,6 +26,10 @@ module Script
             "wasm"
           end
 
+          def has_dependencies?
+            true
+          end
+
           def install_dependencies
             check_node_version!
 
