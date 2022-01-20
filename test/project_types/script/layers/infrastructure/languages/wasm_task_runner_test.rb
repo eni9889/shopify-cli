@@ -2,7 +2,6 @@
 require "project_types/script/test_helper"
 
 describe Script::Layers::Infrastructure::Languages::WasmTaskRunner do
-
   let(:ctx) { TestHelpers::FakeContext.new }
   let(:script_name) { "foo" }
   let(:library_name) { "@shopify/extension-point-as-fake" }
