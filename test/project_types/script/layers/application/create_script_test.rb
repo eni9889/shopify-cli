@@ -11,7 +11,7 @@ describe Script::Layers::Application::CreateScript do
   let(:extension_point_repository) { TestHelpers::FakeExtensionPointRepository.new }
   let(:script_project_repository) { TestHelpers::FakeScriptProjectRepository.new(context) }
   let(:ep) { extension_point_repository.get_extension_point(extension_point_type) }
-  let(:task_runner) { stub(compiled_type: compiled_type, has_dependencies?: true) }
+  let(:task_runner) { stub(compiled_type: compiled_type) }
 
   let(:language) { "assemblyscript" }
   let(:extension_point_type) { "payment-methods" }
