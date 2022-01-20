@@ -49,10 +49,18 @@ module Script
 
           def install_dependencies(ctx, language, script_name, project_creator)
             CLI::UI::Frame.open(ctx.message("script.create.creating")) do
-              CLI::UI::Frame.open(project_creator.create_start_message) do
-                UI::StrictSpinner.spin(project_creator.create_inprogress_message) do |spinner|
+              CLI::UI::Frame.open(ctx.message(
+                "core.git.pulling_from_to",
+                project_creator.sparse_checkout_repo,
+                script_name,
+              )) do
+                UI::StrictSpinner.spin(ctx.message(
+                  "core.git.pulling",
+                  project_creator.sparse_checkout_repo,
+                  script_name,
+                )) do |spinner|
                   project_creator.setup_dependencies
-                  spinner.update_title(project_creator.create_finished_message)
+                  spinner.update_title(ctx.message("core.git.pulled", script_name))
                 end
               end
 
