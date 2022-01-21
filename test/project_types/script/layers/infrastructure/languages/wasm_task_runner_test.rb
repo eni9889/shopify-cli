@@ -18,10 +18,24 @@ describe Script::Layers::Infrastructure::Languages::WasmTaskRunner do
   describe ".library_version" do
     subject { runner.library_version(library_name) }
 
-    describe "regardless of the library_name" do
-      it "should return nil" do
-        assert_nil subject
-      end
+    it "should always return nil" do
+      assert_nil subject
+    end
+  end
+
+  describe ".compiled_type" do
+    subject { runner.compiled_type }
+
+    it "should always return wasm" do
+      assert_equal "wasm", subject
+    end
+  end
+
+  describe ".metadata_file_location" do
+    subject { runner.metadata_file_location }
+
+    it "should return the file location" do
+      assert_equal "metadata.json", subject
     end
   end
 end

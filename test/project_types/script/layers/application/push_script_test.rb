@@ -110,6 +110,8 @@ describe Script::Layers::Application::PushScript do
             .expects(:call).never
 
           capture_io { subject }
+
+          assert_equal uuid, script_project_repository.get.uuid
         end
       end
     end

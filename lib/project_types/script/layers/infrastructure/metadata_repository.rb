@@ -6,8 +6,7 @@ module Script
         include SmartProperties
         property! :ctx, accepts: ShopifyCLI::Context
 
-        def get_metadata(file_location = nil)
-          file_location ||= "metadata.json"
+        def get_metadata(file_location = "metadata.json")
           raise Domain::Errors::MetadataNotFoundError, file_location unless ctx.file_exist?(file_location)
 
           raw_contents = File.read(file_location)
