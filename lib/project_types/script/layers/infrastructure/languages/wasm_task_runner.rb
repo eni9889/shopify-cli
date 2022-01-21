@@ -19,6 +19,14 @@ module Script
           def library_version(_library_name)
             nil
           end
+
+          def compiled_type
+            "wasm"
+          end
+
+          def metadata_file_location
+            "metadata.json"
+          end
         end
       end
     end

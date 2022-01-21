@@ -35,7 +35,12 @@ describe Script::Layers::Application::PushScript do
   let(:extension_point_repository) { TestHelpers::FakeExtensionPointRepository.new }
   let(:script_project_repository) { TestHelpers::FakeScriptProjectRepository.new }
   let(:task_runner) do
-    stub(compiled_type: "wasm", metadata_file_location: metadata_file_location, library_version: library_version)
+    stub(
+      compiled_type: "wasm",
+      metadata_file_location: metadata_file_location,
+      library_version: library_version,
+      respond_to?: true,
+    )
   end
   let(:ep) { extension_point_repository.get_extension_point(extension_point_type) }
   let(:uuid) { "uuid" }
@@ -65,28 +70,48 @@ describe Script::Layers::Application::PushScript do
   describe ".call" do
     subject { Script::Layers::Application::PushScript.call(ctx: @context, force: force, project: script_project) }
 
-    it "should prepare and push script" do
-      script_service_instance = mock
-      script_service_instance.expects(:set_app_script).returns(uuid)
-      Script::Layers::Infrastructure::ScriptService
-        .expects(:new).returns(script_service_instance)
+    describe "success" do
+      before do
+        script_service_instance = mock
+        script_service_instance.expects(:set_app_script).returns(uuid)
+        Script::Layers::Infrastructure::ScriptService
+          .expects(:new).returns(script_service_instance)
 
-      script_uploader_instance = mock
-      script_uploader_instance.expects(:upload).returns(url)
-      Script::Layers::Infrastructure::ScriptUploader
-        .expects(:new).returns(script_uploader_instance)
+        script_uploader_instance = mock
+        script_uploader_instance.expects(:upload).returns(url)
+        Script::Layers::Infrastructure::ScriptUploader
+          .expects(:new).returns(script_uploader_instance)
+      end
 
-      Script::Layers::Application::ProjectDependencies
-        .expects(:install).with(ctx: @context, task_runner: task_runner)
-      Script::Layers::Application::BuildScript.expects(:call).with(
-        ctx: @context,
-        task_runner: task_runner,
-        script_project: script_project,
-        library: library
-      )
-      capture_io { subject }
+      it "should prepare and push script" do
+        Script::Layers::Application::ProjectDependencies
+          .expects(:install).with(ctx: @context, task_runner: task_runner)
+        Script::Layers::Application::BuildScript.expects(:call).with(
+          ctx: @context,
+          task_runner: task_runner,
+          script_project: script_project,
+          library: library
+        )
 
-      assert_equal uuid, script_project_repository.get.uuid
+        capture_io { subject }
+
+        assert_equal uuid, script_project_repository.get.uuid
+      end
+
+      describe "when the task runner does not have a build step" do
+        it "should not do build steps" do
+          task_runner
+            .stubs(:respond_to?)
+            .with(:build)
+            .returns(false)
+          Script::Layers::Application::ProjectDependencies
+            .expects(:install).never
+          Script::Layers::Application::BuildScript
+            .expects(:call).never
+
+          capture_io { subject }
+        end
+      end
     end
 
     describe "when fails to find a library for the API in an unsupported language" do

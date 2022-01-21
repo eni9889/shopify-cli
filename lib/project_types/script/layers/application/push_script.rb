@@ -10,10 +10,10 @@ module Script
             script_project = script_project_repo.get
             script_project.env = project.env
 
-            unless script_project.language == "wasm"
-              task_runner = Infrastructure::Languages::TaskRunner
-                .for(ctx, script_project.language, script_project.script_name)
+            task_runner = Infrastructure::Languages::TaskRunner
+              .for(ctx, script_project.language, script_project.script_name)
 
+            if task_runner.respond_to?(:build)
               extension_point = ExtensionPoints.get(type: script_project.extension_point_type)
               library_name = extension_point.libraries.for(script_project.language)&.package
               raise Infrastructure::Errors::LanguageLibraryForAPINotFoundError.new(
@@ -30,8 +30,8 @@ module Script
               BuildScript.call(ctx: ctx, task_runner: task_runner, script_project: script_project, library: library)
             end
 
-            compiled_type = task_runner&.compiled_type || "wasm"
-            metadata_file_location = task_runner&.metadata_file_location
+            compiled_type = task_runner.compiled_type
+            metadata_file_location = task_runner.metadata_file_location
             metadata = Infrastructure::MetadataRepository.new(ctx: ctx).get_metadata(metadata_file_location)
 
             UI::PrintingSpinner.spin(ctx, ctx.message("script.application.pushing")) do |p_ctx, spinner|
