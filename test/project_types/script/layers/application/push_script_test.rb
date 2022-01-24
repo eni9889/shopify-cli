@@ -39,7 +39,6 @@ describe Script::Layers::Application::PushScript do
       compiled_type: "wasm",
       metadata_file_location: metadata_file_location,
       library_version: library_version,
-      respond_to?: true,
     )
   end
   let(:ep) { extension_point_repository.get_extension_point(extension_point_type) }

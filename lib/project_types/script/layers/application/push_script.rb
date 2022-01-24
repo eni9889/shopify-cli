@@ -9,13 +9,11 @@ module Script
             script_project_repo = Infrastructure::ScriptProjectRepository.new(ctx: ctx)
             script_project = script_project_repo.get
             script_project.env = project.env
-
             task_runner = Infrastructure::Languages::TaskRunner
               .for(ctx, script_project.language, script_project.script_name)
 
             extension_point = ExtensionPoints.get(type: script_project.extension_point_type)
             library_name = extension_point.libraries.for(script_project.language)&.package
-
             library = {
               language: script_project.language,
               version: task_runner.library_version(library_name),
