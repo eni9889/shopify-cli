@@ -13,22 +13,16 @@ module Script
             task_runner = Infrastructure::Languages::TaskRunner
               .for(ctx, script_project.language, script_project.script_name)
 
-            if task_runner.respond_to?(:build)
-              extension_point = ExtensionPoints.get(type: script_project.extension_point_type)
-              library_name = extension_point.libraries.for(script_project.language)&.package
-              raise Infrastructure::Errors::LanguageLibraryForAPINotFoundError.new(
-                language: script_project.language,
-                api: script_project.extension_point_type
-              ) unless library_name
+            extension_point = ExtensionPoints.get(type: script_project.extension_point_type)
+            library_name = extension_point.libraries.for(script_project.language)&.package
 
-              library = {
-                language: script_project.language,
-                version: task_runner.library_version(library_name),
-              }
+            library = {
+              language: script_project.language,
+              version: task_runner.library_version(library_name),
+            } if library_name
 
-              ProjectDependencies.install(ctx: ctx, task_runner: task_runner)
-              BuildScript.call(ctx: ctx, task_runner: task_runner, script_project: script_project, library: library)
-            end
+            ProjectDependencies.install(ctx: ctx, task_runner: task_runner)
+            BuildScript.call(ctx: ctx, task_runner: task_runner, script_project: script_project, library: library)
 
             compiled_type = task_runner.compiled_type
             metadata_file_location = task_runner.metadata_file_location

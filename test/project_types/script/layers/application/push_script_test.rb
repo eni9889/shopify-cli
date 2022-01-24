@@ -97,38 +97,6 @@ describe Script::Layers::Application::PushScript do
 
         assert_equal uuid, script_project_repository.get.uuid
       end
-
-      describe "when the task runner does not have a build step" do
-        it "should not do build steps" do
-          task_runner
-            .stubs(:respond_to?)
-            .with(:build)
-            .returns(false)
-          Script::Layers::Application::ProjectDependencies
-            .expects(:install).never
-          Script::Layers::Application::BuildScript
-            .expects(:call).never
-
-          capture_io { subject }
-
-          assert_equal uuid, script_project_repository.get.uuid
-        end
-      end
-    end
-
-    describe "when fails to find a library for the API in an unsupported language" do
-      before do
-        ep.libraries
-          .stubs(:for)
-          .with(library[:language])
-          .returns(nil)
-      end
-
-      it "should raise LanguageLibraryForAPINotFoundError" do
-        assert_raises(Script::Layers::Infrastructure::Errors::LanguageLibraryForAPINotFoundError) do
-          subject
-        end
-      end
     end
 
     describe "when the task runner fails to find the library name in the installed dependencies" do

@@ -2,9 +2,11 @@
 require "project_types/script/test_helper"
 
 describe Script::Layers::Infrastructure::Languages::WasmTaskRunner do
+  include TestHelpers::FakeFS
+
   let(:ctx) { TestHelpers::FakeContext.new }
   let(:script_name) { "foo" }
-  let(:library_name) { "@shopify/extension-point-as-fake" }
+  let(:library_name) { nil }
   let(:runner) { Script::Layers::Infrastructure::Languages::WasmTaskRunner.new(ctx, script_name) }
 
   describe ".dependencies_installed?" do
@@ -36,6 +38,31 @@ describe Script::Layers::Infrastructure::Languages::WasmTaskRunner do
 
     it "should return the file location" do
       assert_equal "metadata.json", subject
+    end
+  end
+
+  describe ".build" do
+    subject { runner.build }
+
+    describe "when there is an existing .wasm file" do
+      let(:wasm) { "some compiled code" }
+      let(:wasmfile) { "script.wasm" }
+
+      before do
+        ctx.mkdir_p(File.dirname(wasmfile))
+        ctx.write(wasmfile, wasm)
+      end
+      it "should return the contents of the file" do
+        assert_equal wasm, subject
+      end
+    end
+
+    describe "when there is no existing .wasm file" do
+      it "should raise an error" do
+        assert_raises(Script::Layers::Infrastructure::Errors::WebAssemblyBinaryNotFoundError) do
+          subject
+        end
+      end
     end
   end
 end
