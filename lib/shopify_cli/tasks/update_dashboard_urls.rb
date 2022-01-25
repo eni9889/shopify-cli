@@ -3,13 +3,13 @@ module ShopifyCLI
     class UpdateDashboardURLS < ShopifyCLI::Task
       NGROK_REGEX = /https:\/\/([a-z0-9\-]+\.ngrok\.io)(.*)/
 
-      def call(ctx, url:, callback_url:)
+      def call(ctx, url:, callback_url:, force: false)
         @ctx = ctx
         project = ShopifyCLI::Project.current
         api_key = project.env.api_key
         result = ShopifyCLI::PartnersAPI.query(ctx, "get_app_urls", apiKey: api_key)
         app = result["data"]["app"]
-        consent = check_application_url(app["applicationUrl"], url)
+        consent = force || check_application_url(app["applicationUrl"], url)
         constructed_urls = construct_redirect_urls(app["redirectUrlWhitelist"], url, callback_url)
         return if url == app["applicationUrl"]
         ShopifyCLI::PartnersAPI.query(@ctx, "update_dashboard_urls", input: {
